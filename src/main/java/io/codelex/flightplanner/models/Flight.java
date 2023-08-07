@@ -1,4 +1,5 @@
-package io.codelex.flightplanner.objects;
+package io.codelex.flightplanner.models;
+
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -6,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Flight {
+
     private Integer id;
     private Airport from;
     private Airport to;
@@ -14,7 +16,6 @@ public class Flight {
     private LocalDateTime departureTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime arrivalTime;
-
 
     public Flight(Integer id, Airport from, Airport to, String carrier, LocalDateTime departureTime, LocalDateTime arrivalTime) {
         this.id = id;
@@ -72,20 +73,39 @@ public class Flight {
     public void setArrivalTime(LocalDateTime arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
-    public boolean equals(Flight flight) {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Flight flight = (Flight) o;
+        return Objects.equals(id, flight.id) && Objects.equals(from, flight.from) && Objects.equals(to, flight.to) && Objects.equals(carrier, flight.carrier) && Objects.equals(departureTime, flight.departureTime) && Objects.equals(arrivalTime, flight.arrivalTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, from, to, carrier, departureTime, arrivalTime);
+    }
+
+    @Override
+    public String toString() {
+        return "Flight{" +
+                "id=" + id +
+                ", from=" + from +
+                ", to=" + to +
+                ", carrier='" + carrier + '\'' +
+                ", departureTime=" + departureTime +
+                ", arrivalTime=" + arrivalTime +
+                '}';
+    }
+    public boolean isEqual(Flight flight) {
         return this.from.equals(flight.from)
                 && this.to.equals(flight.to)
                 && this.carrier.equals(flight.carrier)
                 && this.departureTime.equals(flight.departureTime)
                 && this.arrivalTime.equals(flight.arrivalTime);
     }
-
     public boolean isBadDates() {
         return arrivalTime.isBefore(departureTime) || arrivalTime.isEqual(departureTime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, from, to, carrier, departureTime, arrivalTime);
     }
 }
