@@ -31,6 +31,14 @@ public class Flight {
     public Flight() {
     }
 
+    public Flight(Airport from, Airport to, String carrier, LocalDateTime departureTime, LocalDateTime arrivalTime) {
+        this.from = from;
+        this.to = to;
+        this.carrier = carrier;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+    }
+
     public Flight(Integer id, Airport from, Airport to, String carrier, LocalDateTime departureTime, LocalDateTime arrivalTime) {
         this.id = id;
         this.from = from;

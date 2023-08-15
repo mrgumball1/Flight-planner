@@ -10,8 +10,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class DatabaseService implements ServiceInterface {
+public class DatabaseService implements FlightPlannerServiceInterface {
     private DatabaseAirportRepo databaseAirportRepo;
     private DatabaseFlightRepo databaseFlightRepo;
 
@@ -23,15 +24,10 @@ public class DatabaseService implements ServiceInterface {
     @Override
     public synchronized Flight addFlight(AddFlightRequest addFlightRequest) {
 
-        Airport airport1 = new Airport(addFlightRequest.getFrom().getCountry(),
-                addFlightRequest.getFrom().getCity(),
-                addFlightRequest.getFrom().getAirport());
+        Airport airport1 = addFlightRequest.getFrom();
+        Airport airport2 = addFlightRequest.getTo();
 
-        Airport airport2 = new Airport(addFlightRequest.getTo().getCountry(),
-                addFlightRequest.getTo().getCity(),
-                addFlightRequest.getTo().getAirport());
-
-        Flight flight = new Flight(databaseFlightRepo.findAll().size() + 1, addFlightRequest.getFrom(),
+        Flight flight = new Flight(addFlightRequest.getFrom(),
                 addFlightRequest.getTo(),
                 addFlightRequest.getCarrier(),
                 LocalDateTime.parse(addFlightRequest.getDepartureTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
@@ -41,9 +37,11 @@ public class DatabaseService implements ServiceInterface {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
-        } else if (databaseFlightRepo.findAll()
-                .stream()
-                .anyMatch(flight1 -> flight1.isEqual(flight))) {
+        } else if (databaseFlightRepo.existsFlightByFromAndToAndCarrierAndDepartureTimeAndArrivalTime(flight.getFrom(),
+                flight.getTo(),
+                flight.getCarrier(),
+                flight.getDepartureTime(),
+                flight.getArrivalTime())) {
 
             throw new ResponseStatusException(HttpStatus.CONFLICT);
 
@@ -51,9 +49,9 @@ public class DatabaseService implements ServiceInterface {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
-        } else
+        }
 
-            databaseAirportRepo.save(airport1);
+        databaseAirportRepo.save(airport1);
         databaseAirportRepo.save(airport2);
 
         databaseFlightRepo.save(flight);
@@ -61,17 +59,12 @@ public class DatabaseService implements ServiceInterface {
     }
 
     @Override
-    public Flight fetchFlight(Integer id) {
-        return databaseFlightRepo.findAll()
-                .stream()
-                .filter(f -> f.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public Optional<Flight> fetchFlight(Integer id) {
+        return Optional.ofNullable(databaseFlightRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     @Override
     public synchronized void deleteFlight(Integer id) {
-        databaseAirportRepo.deleteAll();
         databaseFlightRepo.deleteById(id);
     }
 
@@ -83,9 +76,7 @@ public class DatabaseService implements ServiceInterface {
 
     @Override
     public List<Airport> searchAirports(String phrase) {
-        return databaseFlightRepo.findAll().stream()
-                .map(Flight::getFrom)
-                .filter(airport -> airport.containsPhrase(phrase)).toList();
+        return databaseAirportRepo.searchAirports(phrase.toLowerCase().trim());
     }
 
     @Override

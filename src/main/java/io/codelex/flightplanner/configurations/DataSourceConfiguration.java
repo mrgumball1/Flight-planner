@@ -1,5 +1,6 @@
 package io.codelex.flightplanner.configurations;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ public class DataSourceConfiguration {
 
 
     @Bean
+    @ConditionalOnProperty(prefix = "flight-planner", name = "store-type", havingValue = "database")
     public DataSource getDatabaseDataSource() {
         return DataSourceBuilder.create()
                 .driverClassName("org.postgresql.Driver")

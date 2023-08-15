@@ -9,9 +9,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
-public class InMemoryService implements ServiceInterface {
+public class InMemoryService implements FlightPlannerServiceInterface {
     private InMemoryRepo inMemoryRepo;
 
     public InMemoryService(InMemoryRepo inMemoryRepo) {
@@ -45,12 +46,12 @@ public class InMemoryService implements ServiceInterface {
     }
 
 
-    public Flight fetchFlight(Integer id) {
-        return inMemoryRepo.getFlightList()
+    public Optional<Flight> fetchFlight(Integer id) {
+        return Optional.ofNullable(inMemoryRepo.getFlightList()
                 .stream()
                 .filter(f -> f.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     public synchronized void deleteFlight(Integer id) {

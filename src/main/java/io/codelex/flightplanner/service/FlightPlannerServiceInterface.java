@@ -4,12 +4,13 @@ import io.codelex.flightplanner.models.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public interface ServiceInterface {
+public interface FlightPlannerServiceInterface {
 
     Flight addFlight(AddFlightRequest addFlightRequest);
 
-    Flight fetchFlight(Integer id);
+    Optional<Flight> fetchFlight(Integer id);
 
     void deleteFlight(Integer id);
 
